@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maquis Control Pro 🍺</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 10px; margin: 0; }
+        
+        /* Zone de Stock (Au début de la journée) */
+        .stock-setup {
+            background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #2196F3;
+        }
+        .input-stock { width: 60px; padding: 5px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; }
+        
+        /* Boutons de vente */
+        .grid-boissons { display: flex; justify-content: space-between; gap: 10px; }
+        .btn-boisson {
+            width: 48%;
+            padding: 15px 5px;
+            font-size: 18px;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .btn-boisson:active { transform: scale(0.98); }
+        .bock { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+        .ivoire { background: linear-gradient(135deg, #fbc02d, #f9a825); color: black; }
+        
+        /* Compteur de stock sur le bouton */
+        .badge-stock {
+            position: absolute; top: -10px; right: -5px;
+            background: #333; color: white; padding: 5px 10px;
+            border-radius: 20px; font-size: 12px; font-weight: bold;
+            border: 2px solid white;
+        }
+
+        /* Résumé */
+        .total-box {
+            background: white; padding: 20px; border-radius: 15px; margin-top: 20px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            position: fixed; bottom: 0; left: 0; right: 0;
+        }
+        h1 { margin: 10px 0; color: #333; font-size: 24px; }
+        h3 { margin: 5px 0; color: #666; }
+        .action-btn {
+            background-color: #25D366; color: white; padding: 15px; width: 100%;
+            border: none; border-radius: 10px; font-size: 18px; margin-top: 10px; font-weight: bold;
+        }
+        .danger-text { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h3>🍺 Configuration Stock (Matin)</h3>
+    
+    <div class="stock-setup">
+        <p>Entrez le nombre de bouteilles dans le frigo :</p>
+        <label>Bock : </label> <input type="number" id="input-bock" class="input-stock" value="24">
+        <label>Ivoire : </label> <input type="number" id="input-ivoire" class="input-stock" value="24">
+        <br><br>
+        <button onclick="validerStock()" style="background:#2196F3; color:white; border:none; padding:8px 15px; border-radius:5px;">🔒 Verrouiller le Stock</button>
+    </div>
+
+    <h1>Vente en cours</h1>
+    
+    <div class="grid-boissons">
+        <button class="btn-boisson bock" onclick="vendre('Bock', 1000)">
+            <span id="badge-bock" class="badge-stock">24</span>
+            Bock<br>1000 F
+        </button>
+
+        <button class="btn-boisson ivoire" onclick="vendre('Ivoire', 1100)">
+            <span id="badge-ivoire" class="badge-stock">24</span>
+            Ivoire<br>1100 F
+        </button>
+    </div>
+
+    <div style="height: 200px;"></div> <div class="total-box">
+        <h3>Caisse du Jour</h3>
+        <h1 id="total-caisse">0 FCFA</h1>
+        <p id="alert-msg" class="danger-text"></p>
+        <button class="action-btn" onclick="genererRapport()">📤 Envoyer Rapport WhatsApp</button>
+    </div>
+
+    <script>
+        // Données du stock et des ventes
+        let stocks = {
+            'Bock': 24,
+            'Ivoire': 24
+        };
+        
+        let totalArgent = 0;
+        let ventes = { 'Bock': 0, 'Ivoire': 0 };
+
+        // 1. Fonction pour initialiser le stock le matin
+        function validerStock() {
+            stocks['Bock'] = parseInt(document.getElementById('input-bock').value) || 0;
+            stocks['Ivoire'] = parseInt(document.getElementById('input-ivoire').value) || 0;
+            
+            updateDisplay();
+            alert("Stock enregistré ! Bonne vente.");
+            // On pourrait cacher la zone de setup ici si on voulait
+        }
+
+        // 2. Fonction de vente
+        function vendre(nom, prix) {
+            // Vérification du stock
+            if (stocks[nom] > 0) {
+                stocks[nom]--;      // On enlève 1 au stock
+                ventes[nom]++;      // On ajoute 1 aux ventes
+                totalArgent += prix; // On encaisse l'argent
+                
+                document.getElementById("alert-msg").innerText = ""; // Efface les erreurs
+            } else {
+                // Son ou vibration possible ici
+                document.getElementById("alert-msg").innerText = "⚠️ RUPTURE DE STOCK DE " + nom.toUpperCase() + " !";
+                return; // On arrête tout, pas de vente
+            }
+            
+            updateDisplay();
+        }
+
+        // 3. Mettre à jour l'écran
+        function updateDisplay() {
+            document.getElementById("badge-bock").innerText = stocks['Bock'];
+            document.getElementById("badge-ivoire").innerText = stocks['Ivoire'];
+            document.getElementById("total-caisse").innerText = totalArgent + " FCFA";
+        }
+
+        // 4. Générer le rapport WhatsApp pour le patron
+        function genererRapport() {
+            let date = new Date().toLocaleDateString();
+            let heure = new Date().toLocaleTimeString();
+            
+            let message = `*📊 RAPPORT MAQUIS - ${date} ${heure}* %0a%0a`;
+            
+            message += `💰 *TOTAL CAISSE : ${totalArgent} FCFA* %0a`;
+            message += `------------------%0a`;
+            
+            message += `🍺 *Bock* : %0a`;
+            message += `   - Vendues : ${ventes['Bock']} %0a`;
+            message += `   - Reste au frigo : *${stocks['Bock']}* %0a%0a`;
+            
+            message += `🍺 *Ivoire* : %0a`;
+            message += `   - Vendues : ${ventes['Ivoire']} %0a`;
+            message += `   - Reste au frigo : *${stocks['Ivoire']}* %0a`;
+            
+            message += `------------------%0a`;
+            message += `Signé : Le Gérant`;
+
+            window.open(`https://wa.me/?text=${message}`, '_blank');
+        }
+        
+        // Initialisation affichage
+        updateDisplay();
+    </script>
+
+</body>
+</html>
