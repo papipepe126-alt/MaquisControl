@@ -3,329 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MaquisControl Pro</title>
-    
+    <title>Maquis Manager Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --primary: #FFD700; /* Or */
-            --accent: #FF6B6B; /* Rouge doux */
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --success: #4CAF50;
+            --bg: #121212; --card: #1e1e1e; --primary: #FFD700; --danger: #FF4444; --success: #00C851; --text: #fff;
         }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; padding-bottom: 120px; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+        .admin-btn { background: #333; color: white; border: 1px solid #555; padding: 10px 15px; border-radius: 12px; cursor: pointer; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            padding-bottom: 100px; /* Espace pour le bouton du bas */
-        }
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #333; }
+        .stat-card h3 { margin: 0; font-size: 11px; color: #aaa; text-transform: uppercase; }
+        .stat-card .val { font-size: 20px; font-weight: 700; margin-top: 5px; }
+        .big-card { grid-column: span 2; background: linear-gradient(135deg, #2c3e50, #000000); border: 1px solid var(--primary); }
+        .big-card .val { font-size: 32px; color: var(--primary); }
 
-        /* En-tête */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        /* Grille Produits */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .product-card { background: var(--card); border-radius: 18px; padding: 15px; position: relative; border: 1px solid #333; transition: transform 0.1s; }
+        .product-card:active { transform: scale(0.96); background: #252525; }
+        .p-name { font-weight: 600; font-size: 16px; margin-bottom: 5px; }
+        .p-price { color: var(--success); font-weight: 700; font-size: 14px; }
+        .p-stock { font-size: 11px; color: #888; margin-top: 8px; display: flex; justify-content: space-between; }
+        .bar-bg { background: #333; height: 4px; border-radius: 2px; margin-top: 5px; width: 100%; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--success); width: 100%; transition: width 0.3s; }
 
-        .brand { font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
-        .settings-btn { background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
+        /* Actions Flottantes */
+        .fab-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 90%; z-index: 99; }
+        .btn-main { flex: 2; background: #25D366; color: white; padding: 16px; border: none; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 5px 15px rgba(37,211,102,0.3); }
+        .btn-expense { flex: 1; background: var(--danger); color: white; padding: 16px; border: none; border-radius: 50px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(255,68,68,0.3); }
 
-        /* Carte Caisse Principale */
-        .dashboard-card {
-            background: linear-gradient(135deg, #2c3e50, #000000);
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .dashboard-card h2 { margin: 0; font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
-        .dashboard-card .amount { font-size: 42px; font-weight: 700; margin: 10px 0; color: var(--primary); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-
-        /* Grille des Boissons */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .drink-card {
-            background: var(--card-bg);
-            border-radius: 18px;
-            padding: 20px 15px;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.2s;
-            border: 1px solid #333;
-            overflow: hidden;
-        }
-
-        .drink-card:active { transform: scale(0.96); background: #2a2a2a; }
-
-        .drink-icon { font-size: 30px; margin-bottom: 10px; color: var(--text-muted); }
-        .drink-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-        .drink-price { font-size: 14px; color: var(--success); font-weight: 700; }
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid #444; }
+        .modal-title { margin-top: 0; color: var(--primary); }
         
-        /* Jauge de Stock */
-        .stock-indicator {
-            margin-top: 15px;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            width: 100%;
-            overflow: hidden;
-        }
-        .stock-level { height: 100%; background: var(--success); transition: width 0.3s; }
-        .stock-text { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; text-align: right; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #333; border: 1px solid #555; color: white; border-radius: 8px; font-size: 16px; }
+        .btn-save { background: var(--primary); color: black; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; }
+        .close-modal { position: absolute; top: 15px; right: 15px; color: #888; font-size: 24px; cursor: pointer; }
 
-        /* Bouton Flottant WhatsApp */
-        .fab {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            z-index: 100;
-        }
-
-        /* MODAL (Fenêtre de réglages) */
-        .modal {
-            display: none; /* Caché par défaut */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 200;
-            align-items: center; justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: var(--card-bg); width: 90%; padding: 30px; border-radius: 20px;
-            border: 1px solid #444;
-        }
-        .modal input {
-            width: 100%; padding: 15px; margin: 10px 0;
-            background: #333; border: none; color: white; border-radius: 10px; font-size: 18px;
-        }
-        .close-btn {
-            background: var(--primary); color: black; border: none; padding: 15px; width: 100%;
-            border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 10px;
-        }
-
+        /* Admin List */
+        .admin-item { display: flex; gap: 5px; margin-bottom: 10px; align-items: center; background: #2a2a2a; padding: 10px; border-radius: 8px; }
+        .admin-item input { margin: 0; font-size: 14px; padding: 8px; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
+    <div class="modal" id="modal-login">
+        <div class="modal-content" style="text-align: center;">
+            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-login')"></i>
+            <h2 class="modal-title">🔐 Accès Patron</h2>
+            <p style="color:#aaa; font-size:13px;">Entrez le code PIN (Défaut: 0000)</p>
+            <input type="password" id="pin-input" placeholder="Code PIN" style="text-align:center; font-size: 24px; letter-spacing: 5px;">
+            <button class="btn-save" onclick="checkPin()">DÉVERROUILLER</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-admin">
+        <div class="modal-content">
+            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-admin')"></i>
+            <h2 class="modal-title">⚙️ Gestion Stock & Menu</h2>
+            
+            <div id="admin-list">
+                </div>
+
+            <button class="btn-save" style="background:#333; color:white; border:1px dashed #777;" onclick="addNewProductItem()">+ Ajouter un nouveau produit</button>
+            
+            <hr style="border-color:#333; margin:20px 0;">
+            
+            <label style="color:#aaa; font-size:12px;">Nouveau Code PIN</label>
+            <input type="number" id="new-pin" placeholder="Changer le PIN">
+            
+            <button class="btn-save" onclick="saveAdminData()">💾 SAUVEGARDER & QUITTER</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-expense">
+        <div class="modal-content">
+            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-expense')"></i>
+            <h2 class="modal-title" style="color:var(--danger)">💸 Sortie de Caisse</h2>
+            
+            <label>Motif (ex: Glace, Transport)</label>
+            <input type="text" id="expense-reason">
+            
+            <label>Montant (FCFA)</label>
+            <input type="number" id="expense-amount">
+            
+            <button class="btn-save" style="background:var(--danger); color:white" onclick="addExpense()">VALIDER LA SORTIE</button>
+        </div>
+    </div>
+
     <header>
-        <div class="brand"><i class="fa-solid fa-beer-mug-empty"></i> MAQUIS<span style="color:white">PRO</span></div>
-        <button class="settings-btn" onclick="toggleModal()"><i class="fa-solid fa-gear"></i></button>
+        <div class="brand"><i class="fa-solid fa-champagne-glasses"></i> MAQUIS<span style="color:white">MANAGER</span></div>
+        <button class="admin-btn" onclick="openLogin()"><i class="fa-solid fa-lock"></i> Admin</button>
     </header>
 
-    <div class="dashboard-card">
-        <h2>Recette du Soir</h2>
-        <div class="amount" id="total-caisse">0 FCFA</div>
-        <div style="font-size: 12px; color: #666;">EN CAISSE ACTUELLEMENT</div>
-    </div>
-
-    <div class="grid">
-        <div class="drink-card" onclick="vendre('Bock', 1000)">
-            <div class="drink-icon" style="color: #e74c3c;"><i class="fa-solid fa-wine-bottle"></i></div>
-            <div class="drink-name">Bock</div>
-            <div class="drink-price">1000 F</div>
-            
-            <div class="stock-indicator">
-                <div class="stock-level" id="bar-bock" style="width: 100%;"></div>
-            </div>
-            <span class="stock-text">Stock: <span id="text-bock">24</span></span>
+    <div class="dashboard">
+        <div class="stat-card big-card">
+            <h3>Net en Caisse (Réel)</h3>
+            <div class="val" id="net-total">0 F</div>
         </div>
-
-        <div class="drink-card" onclick="vendre('Ivoire', 1100)">
-            <div class="drink-icon" style="color: #f1c40f;"><i class="fa-solid fa-wine-glass"></i></div>
-            <div class="drink-name">Ivoire</div>
-            <div class="drink-price">1100 F</div>
-            
-            <div class="stock-indicator">
-                <div class="stock-level" id="bar-ivoire" style="width: 100%;"></div>
-            </div>
-            <span class="stock-text">Stock: <span id="text-ivoire">24</span></span>
+        <div class="stat-card">
+            <h3>Ventes Totales</h3>
+            <div class="val" id="sales-total" style="color:var(--success)">0 F</div>
         </div>
-
-        <div class="drink-card" onclick="vendre('Chill', 1200)">
-            <div class="drink-icon" style="color: #3498db;"><i class="fa-solid fa-bottle-droplet"></i></div>
-            <div class="drink-name">Chill</div>
-            <div class="drink-price">1200 F</div>
-            
-            <div class="stock-indicator">
-                <div class="stock-level" id="bar-chill" style="width: 100%;"></div>
-            </div>
-            <span class="stock-text">Stock: <span id="text-chill">24</span></span>
-        </div>
-
-        <div class="drink-card" onclick="vendre('Eau', 500)">
-            <div class="drink-icon" style="color: #ffffff;"><i class="fa-solid fa-glass-water"></i></div>
-            <div class="drink-name">Eau</div>
-            <div class="drink-price">500 F</div>
-            
-            <div class="stock-indicator">
-                <div class="stock-level" id="bar-eau" style="width: 100%;"></div>
-            </div>
-            <span class="stock-text">Stock: <span id="text-eau">24</span></span>
+        <div class="stat-card">
+            <h3>Dépenses</h3>
+            <div class="val" id="expenses-total" style="color:var(--danger)">0 F</div>
         </div>
     </div>
 
-    <button class="fab" onclick="genererRapport()">
-        <i class="fa-brands fa-whatsapp"></i> CLÔTURER LA CAISSE
-    </button>
-
-    <div class="modal" id="settings-modal">
-        <div class="modal-content">
-            <h2 style="margin-top:0">📦 Mise en Stock</h2>
-            <p style="color:#888; font-size:12px;">Entrez le nombre de bouteilles dans le frigo.</p>
-            
-            <label>Bock (Qté)</label>
-            <input type="number" id="input-bock" value="24">
-            
-            <label>Ivoire (Qté)</label>
-            <input type="number" id="input-ivoire" value="24">
-
-            <label>Chill (Qté)</label>
-            <input type="number" id="input-chill" value="24">
-
-            <label>Eau (Qté)</label>
-            <input type="number" id="input-eau" value="24">
-
-            <button class="close-btn" onclick="validerStock()">ENREGISTRER</button>
+    <div class="grid" id="product-grid">
         </div>
+
+    <div class="fab-container">
+        <button class="btn-expense" onclick="openModal('modal-expense')"><i class="fa-solid fa-money-bill-transfer"></i></button>
+        <button class="btn-main" onclick="sendReport()"><i class="fa-brands fa-whatsapp"></i> FAIRE LE POINT</button>
     </div>
 
     <script>
-        // CONFIGURATION INITIALE
-        let stocks = { 'Bock': 24, 'Ivoire': 24, 'Chill': 24, 'Eau': 24 };
-        let maxStocks = { 'Bock': 24, 'Ivoire': 24, 'Chill': 24, 'Eau': 24 }; // Pour la barre de progression
-        let ventes = { 'Bock': 0, 'Ivoire': 0, 'Chill': 0, 'Eau': 0 };
-        let totalArgent = 0;
+        // --- DATA & STATE ---
+        // Configuration par défaut si c'est la première utilisation
+        let defaultData = {
+            pin: "0000",
+            products: [
+                { id: 1, name: "Bock 66", price: 1000, stock: 24, maxStock: 24, sold: 0 },
+                { id: 2, name: "Ivoire", price: 1100, stock: 24, maxStock: 24, sold: 0 },
+                { id: 3, name: "Chill", price: 1200, stock: 24, maxStock: 24, sold: 0 },
+                { id: 4, name: "Eau", price: 500, stock: 24, maxStock: 24, sold: 0 }
+            ],
+            expenses: [], // Liste des dépenses
+            lastReset: new Date().toLocaleDateString()
+        };
 
-        // Fonction pour ouvrir/fermer les réglages
-        function toggleModal() {
-            const modal = document.getElementById('settings-modal');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        // Charge les données ou utilise les défauts
+        let appData = JSON.parse(localStorage.getItem('maquisData')) || defaultData;
+
+        // --- CORE FUNCTIONS ---
+
+        function saveData() {
+            localStorage.setItem('maquisData', JSON.stringify(appData));
+            renderUI();
         }
 
-        // Fonction pour valider le stock depuis le modal
-        function validerStock() {
-            stocks['Bock'] = parseInt(document.getElementById('input-bock').value);
-            stocks['Ivoire'] = parseInt(document.getElementById('input-ivoire').value);
-            stocks['Chill'] = parseInt(document.getElementById('input-chill').value);
-            stocks['Eau'] = parseInt(document.getElementById('input-eau').value);
-            
-            // On mémorise le max pour calculer le % de la barre
-            maxStocks = {...stocks}; 
-            
-            updateUI();
-            toggleModal(); // Ferme la fenêtre
+        function renderUI() {
+            // 1. Calculs Financiers
+            let totalSales = appData.products.reduce((acc, p) => acc + (p.sold * p.price), 0);
+            let totalExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
+            let net = totalSales - totalExpenses;
+
+            document.getElementById('sales-total').innerText = totalSales.toLocaleString() + ' F';
+            document.getElementById('expenses-total').innerText = totalExpenses.toLocaleString() + ' F';
+            document.getElementById('net-total').innerText = net.toLocaleString() + ' F';
+
+            // 2. Rendu Grille Produits
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+
+            appData.products.forEach(p => {
+                let percent = (p.stock / p.maxStock) * 100;
+                let barColor = percent < 20 ? 'var(--danger)' : (percent < 50 ? '#ffbb33' : 'var(--success)');
+
+                let html = `
+                <div class="product-card" onclick="sell(${p.id})">
+                    <div class="p-name">${p.name}</div>
+                    <div class="p-price">${p.price} F</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${percent}%; background:${barColor}"></div></div>
+                    <div class="p-stock">
+                        <span>Stock: <b>${p.stock}</b></span>
+                        <span style="color:#aaa">Vendu: ${p.sold}</span>
+                    </div>
+                </div>`;
+                grid.innerHTML += html;
+            });
         }
 
-        // Fonction de vente
-        function vendre(nom, prix) {
-            if (stocks[nom] > 0) {
-                // Logique Mathématique
-                stocks[nom]--;
-                ventes[nom]++;
-                totalArgent += prix;
-
-                // Feedback Haptique (Vibration)
-                if (navigator.vibrate) navigator.vibrate(50); 
-
-                updateUI();
+        function sell(id) {
+            let p = appData.products.find(x => x.id === id);
+            if (p && p.stock > 0) {
+                p.stock--;
+                p.sold++;
+                if(navigator.vibrate) navigator.vibrate(50);
+                saveData();
             } else {
-                // Vibration d'erreur (longue)
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                alert("⛔ STOCK ÉPUISÉ : " + nom);
+                if(navigator.vibrate) navigator.vibrate([50,50,50]);
+                alert("STOCK ÉPUISÉ ! Appelez le gérant.");
             }
         }
 
-        // Mise à jour de toute l'interface
-        function updateUI() {
-            // Mise à jour du Total
-            // .toLocaleString() permet d'avoir les espaces (ex: 10 000 au lieu de 10000)
-            document.getElementById("total-caisse").innerText = totalArgent.toLocaleString() + " FCFA";
-
-            // Mise à jour des barres et textes pour chaque boisson
-            updateCard('bock', 'Bock');
-            updateCard('ivoire', 'Ivoire');
-            updateCard('chill', 'Chill');
-            updateCard('eau', 'Eau');
+        // --- EXPENSES (SORTIES) ---
+        function addExpense() {
+            let reason = document.getElementById('expense-reason').value;
+            let amount = parseInt(document.getElementById('expense-amount').value);
+            
+            if (reason && amount) {
+                appData.expenses.push({ reason, amount, time: new Date().toLocaleTimeString() });
+                closeModal('modal-expense');
+                document.getElementById('expense-reason').value = '';
+                document.getElementById('expense-amount').value = '';
+                saveData();
+            }
         }
 
-        function updateCard(idSuffix, nameKey) {
-            let current = stocks[nameKey];
-            let max = maxStocks[nameKey] || 1; // Evite division par zero
-            let percent = (current / max) * 100;
+        // --- ADMIN & SECURITY ---
 
-            // Texte
-            document.getElementById(`text-${idSuffix}`).innerText = current;
-            
-            // Barre visuelle
-            let bar = document.getElementById(`bar-${idSuffix}`);
-            bar.style.width = percent + "%";
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-            // Changement de couleur si stock bas
-            if (percent < 20) {
-                bar.style.backgroundColor = "#ff4444"; // Rouge
-            } else if (percent < 50) {
-                bar.style.backgroundColor = "#ffbb33"; // Orange
+        function openLogin() {
+            document.getElementById('pin-input').value = '';
+            openModal('modal-login');
+        }
+
+        function checkPin() {
+            let input = document.getElementById('pin-input').value;
+            if (input === appData.pin) {
+                closeModal('modal-login');
+                openAdminPanel();
             } else {
-                bar.style.backgroundColor = "#4CAF50"; // Vert
+                alert("Code PIN Incorrect !");
             }
         }
 
-        function genererRapport() {
-            let date = new Date().toLocaleDateString();
-            let heure = new Date().toLocaleTimeString();
-            let msg = `*📊 RAPPORT MAQUISPRO - ${date} ${heure}* %0a%0a`;
+        function openAdminPanel() {
+            openModal('modal-admin');
+            const list = document.getElementById('admin-list');
+            list.innerHTML = '';
             
-            msg += `💰 CAISSE : *${totalArgent.toLocaleString()} FCFA* %0a`;
-            msg += `------------------%0a`;
-            
-            for (let [boisson, qte] of Object.entries(ventes)) {
-                if(qte > 0 || stocks[boisson] < 5) { // Affiche si vendu ou si stock critique
-                     msg += `🍺 *${boisson}* : Vendu ${qte} | Reste ${stocks[boisson]} %0a`;
-                }
+            appData.products.forEach((p, index) => {
+                list.innerHTML += `
+                <div class="admin-item">
+                    <input type="text" value="${p.name}" onchange="updateProd(${index}, 'name', this.value)" style="width:40%">
+                    <input type="number" value="${p.price}" onchange="updateProd(${index}, 'price', this.value)" style="width:25%">
+                    <input type="number" value="${p.stock}" onchange="updateProd(${index}, 'stock', this.value)" style="width:20%; color:var(--primary)">
+                    <button class="btn-del" onclick="deleteProd(${index})"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+            });
+        }
+
+        function updateProd(index, field, value) {
+            if(field === 'stock') {
+                appData.products[index].maxStock = parseInt(value); // Reset max stock ref
+                appData.products[index].stock = parseInt(value);
+                appData.products[index].sold = 0; // Reset ventes du jour si on change stock
+            } else if (field === 'price') {
+                appData.products[index].price = parseInt(value);
+            } else {
+                appData.products[index][field] = value;
             }
+        }
+
+        function deleteProd(index) {
+            if(confirm('Supprimer ce produit ?')) {
+                appData.products.splice(index, 1);
+                openAdminPanel(); // Refresh list
+            }
+        }
+
+        function addNewProductItem() {
+            appData.products.push({ id: Date.now(), name: 'Nouveau', price: 0, stock: 0, maxStock: 0, sold: 0 });
+            openAdminPanel();
+        }
+
+        function saveAdminData() {
+            let newPin = document.getElementById('new-pin').value;
+            if(newPin) appData.pin = newPin;
+            saveData();
+            closeModal('modal-admin');
+            alert("✅ Données mises à jour !");
+        }
+
+        // --- WHATSAPP REPORT ---
+
+        function sendReport() {
+            let d = new Date();
+            let msg = `*📊 RAPPORT DU ${d.toLocaleDateString()} ${d.toLocaleTimeString()}* %0a`;
+            msg += `--------------------------------%0a`;
             
-            msg += `------------------%0a`;
-            msg += `Validé par le gérant.`;
+            // Détails Ventes
+            appData.products.forEach(p => {
+                if(p.sold > 0) msg += `🍺 ${p.name}: ${p.sold} x ${p.price} = ${p.sold*p.price} F (Reste: ${p.stock})%0a`;
+            });
+
+            msg += `--------------------------------%0a`;
+            msg += `💰 Ventes Totales: *${document.getElementById('sales-total').innerText}*%0a`;
+            
+            // Détails Dépenses
+            if(appData.expenses.length > 0) {
+                 msg += `🔻 *DÉPENSES (SORTIES)* :%0a`;
+                 appData.expenses.forEach(e => msg += `   - ${e.reason}: ${e.amount} F%0a`);
+                 msg += `   Total Sorties: -${document.getElementById('expenses-total').innerText}%0a`;
+            }
+
+            msg += `================================%0a`;
+            msg += `💵 *NET À VERSER : ${document.getElementById('net-total').innerText}*`;
 
             window.open(`https://wa.me/?text=${msg}`, '_blank');
         }
 
-        // Initialisation
-        updateUI();
+        // Init
+        renderUI();
 
     </script>
 </body>
