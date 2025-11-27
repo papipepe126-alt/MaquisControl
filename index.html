@@ -2,163 +2,331 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maquis Control Pro 🍺</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MaquisControl Pro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 10px; margin: 0; }
-        
-        /* Zone de Stock (Au début de la journée) */
-        .stock-setup {
-            background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #2196F3;
-        }
-        .input-stock { width: 60px; padding: 5px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; }
-        
-        /* Boutons de vente */
-        .grid-boissons { display: flex; justify-content: space-between; gap: 10px; }
-        .btn-boisson {
-            width: 48%;
-            padding: 15px 5px;
-            font-size: 18px;
-            border: none;
-            border-radius: 15px;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        .btn-boisson:active { transform: scale(0.98); }
-        .bock { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
-        .ivoire { background: linear-gradient(135deg, #fbc02d, #f9a825); color: black; }
-        
-        /* Compteur de stock sur le bouton */
-        .badge-stock {
-            position: absolute; top: -10px; right: -5px;
-            background: #333; color: white; padding: 5px 10px;
-            border-radius: 20px; font-size: 12px; font-weight: bold;
-            border: 2px solid white;
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #FFD700; /* Or */
+            --accent: #FF6B6B; /* Rouge doux */
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --success: #4CAF50;
         }
 
-        /* Résumé */
-        .total-box {
-            background: white; padding: 20px; border-radius: 15px; margin-top: 20px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-            position: fixed; bottom: 0; left: 0; right: 0;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px; /* Espace pour le bouton du bas */
         }
-        h1 { margin: 10px 0; color: #333; font-size: 24px; }
-        h3 { margin: 5px 0; color: #666; }
-        .action-btn {
-            background-color: #25D366; color: white; padding: 15px; width: 100%;
-            border: none; border-radius: 10px; font-size: 18px; margin-top: 10px; font-weight: bold;
+
+        /* En-tête */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
-        .danger-text { color: red; font-weight: bold; }
+
+        .brand { font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+        .settings-btn { background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
+
+        /* Carte Caisse Principale */
+        .dashboard-card {
+            background: linear-gradient(135deg, #2c3e50, #000000);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dashboard-card h2 { margin: 0; font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+        .dashboard-card .amount { font-size: 42px; font-weight: 700; margin: 10px 0; color: var(--primary); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+
+        /* Grille des Boissons */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .drink-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 20px 15px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .drink-card:active { transform: scale(0.96); background: #2a2a2a; }
+
+        .drink-icon { font-size: 30px; margin-bottom: 10px; color: var(--text-muted); }
+        .drink-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .drink-price { font-size: 14px; color: var(--success); font-weight: 700; }
+        
+        /* Jauge de Stock */
+        .stock-indicator {
+            margin-top: 15px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .stock-level { height: 100%; background: var(--success); transition: width 0.3s; }
+        .stock-text { font-size: 11px; color: var(--text-muted); margin-top: 5px; display: block; text-align: right; }
+
+        /* Bouton Flottant WhatsApp */
+        .fab {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* MODAL (Fenêtre de réglages) */
+        .modal {
+            display: none; /* Caché par défaut */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 200;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--card-bg); width: 90%; padding: 30px; border-radius: 20px;
+            border: 1px solid #444;
+        }
+        .modal input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            background: #333; border: none; color: white; border-radius: 10px; font-size: 18px;
+        }
+        .close-btn {
+            background: var(--primary); color: black; border: none; padding: 15px; width: 100%;
+            border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
 
-    <h3>🍺 Configuration Stock (Matin)</h3>
-    
-    <div class="stock-setup">
-        <p>Entrez le nombre de bouteilles dans le frigo :</p>
-        <label>Bock : </label> <input type="number" id="input-bock" class="input-stock" value="24">
-        <label>Ivoire : </label> <input type="number" id="input-ivoire" class="input-stock" value="24">
-        <br><br>
-        <button onclick="validerStock()" style="background:#2196F3; color:white; border:none; padding:8px 15px; border-radius:5px;">🔒 Verrouiller le Stock</button>
+    <header>
+        <div class="brand"><i class="fa-solid fa-beer-mug-empty"></i> MAQUIS<span style="color:white">PRO</span></div>
+        <button class="settings-btn" onclick="toggleModal()"><i class="fa-solid fa-gear"></i></button>
+    </header>
+
+    <div class="dashboard-card">
+        <h2>Recette du Soir</h2>
+        <div class="amount" id="total-caisse">0 FCFA</div>
+        <div style="font-size: 12px; color: #666;">EN CAISSE ACTUELLEMENT</div>
     </div>
 
-    <h1>Vente en cours</h1>
-    
-    <div class="grid-boissons">
-        <button class="btn-boisson bock" onclick="vendre('Bock', 1000)">
-            <span id="badge-bock" class="badge-stock">24</span>
-            Bock<br>1000 F
-        </button>
+    <div class="grid">
+        <div class="drink-card" onclick="vendre('Bock', 1000)">
+            <div class="drink-icon" style="color: #e74c3c;"><i class="fa-solid fa-wine-bottle"></i></div>
+            <div class="drink-name">Bock</div>
+            <div class="drink-price">1000 F</div>
+            
+            <div class="stock-indicator">
+                <div class="stock-level" id="bar-bock" style="width: 100%;"></div>
+            </div>
+            <span class="stock-text">Stock: <span id="text-bock">24</span></span>
+        </div>
 
-        <button class="btn-boisson ivoire" onclick="vendre('Ivoire', 1100)">
-            <span id="badge-ivoire" class="badge-stock">24</span>
-            Ivoire<br>1100 F
-        </button>
+        <div class="drink-card" onclick="vendre('Ivoire', 1100)">
+            <div class="drink-icon" style="color: #f1c40f;"><i class="fa-solid fa-wine-glass"></i></div>
+            <div class="drink-name">Ivoire</div>
+            <div class="drink-price">1100 F</div>
+            
+            <div class="stock-indicator">
+                <div class="stock-level" id="bar-ivoire" style="width: 100%;"></div>
+            </div>
+            <span class="stock-text">Stock: <span id="text-ivoire">24</span></span>
+        </div>
+
+        <div class="drink-card" onclick="vendre('Chill', 1200)">
+            <div class="drink-icon" style="color: #3498db;"><i class="fa-solid fa-bottle-droplet"></i></div>
+            <div class="drink-name">Chill</div>
+            <div class="drink-price">1200 F</div>
+            
+            <div class="stock-indicator">
+                <div class="stock-level" id="bar-chill" style="width: 100%;"></div>
+            </div>
+            <span class="stock-text">Stock: <span id="text-chill">24</span></span>
+        </div>
+
+        <div class="drink-card" onclick="vendre('Eau', 500)">
+            <div class="drink-icon" style="color: #ffffff;"><i class="fa-solid fa-glass-water"></i></div>
+            <div class="drink-name">Eau</div>
+            <div class="drink-price">500 F</div>
+            
+            <div class="stock-indicator">
+                <div class="stock-level" id="bar-eau" style="width: 100%;"></div>
+            </div>
+            <span class="stock-text">Stock: <span id="text-eau">24</span></span>
+        </div>
     </div>
 
-    <div style="height: 200px;"></div> <div class="total-box">
-        <h3>Caisse du Jour</h3>
-        <h1 id="total-caisse">0 FCFA</h1>
-        <p id="alert-msg" class="danger-text"></p>
-        <button class="action-btn" onclick="genererRapport()">📤 Envoyer Rapport WhatsApp</button>
+    <button class="fab" onclick="genererRapport()">
+        <i class="fa-brands fa-whatsapp"></i> CLÔTURER LA CAISSE
+    </button>
+
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0">📦 Mise en Stock</h2>
+            <p style="color:#888; font-size:12px;">Entrez le nombre de bouteilles dans le frigo.</p>
+            
+            <label>Bock (Qté)</label>
+            <input type="number" id="input-bock" value="24">
+            
+            <label>Ivoire (Qté)</label>
+            <input type="number" id="input-ivoire" value="24">
+
+            <label>Chill (Qté)</label>
+            <input type="number" id="input-chill" value="24">
+
+            <label>Eau (Qté)</label>
+            <input type="number" id="input-eau" value="24">
+
+            <button class="close-btn" onclick="validerStock()">ENREGISTRER</button>
+        </div>
     </div>
 
     <script>
-        // Données du stock et des ventes
-        let stocks = {
-            'Bock': 24,
-            'Ivoire': 24
-        };
-        
+        // CONFIGURATION INITIALE
+        let stocks = { 'Bock': 24, 'Ivoire': 24, 'Chill': 24, 'Eau': 24 };
+        let maxStocks = { 'Bock': 24, 'Ivoire': 24, 'Chill': 24, 'Eau': 24 }; // Pour la barre de progression
+        let ventes = { 'Bock': 0, 'Ivoire': 0, 'Chill': 0, 'Eau': 0 };
         let totalArgent = 0;
-        let ventes = { 'Bock': 0, 'Ivoire': 0 };
 
-        // 1. Fonction pour initialiser le stock le matin
+        // Fonction pour ouvrir/fermer les réglages
+        function toggleModal() {
+            const modal = document.getElementById('settings-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        // Fonction pour valider le stock depuis le modal
         function validerStock() {
-            stocks['Bock'] = parseInt(document.getElementById('input-bock').value) || 0;
-            stocks['Ivoire'] = parseInt(document.getElementById('input-ivoire').value) || 0;
+            stocks['Bock'] = parseInt(document.getElementById('input-bock').value);
+            stocks['Ivoire'] = parseInt(document.getElementById('input-ivoire').value);
+            stocks['Chill'] = parseInt(document.getElementById('input-chill').value);
+            stocks['Eau'] = parseInt(document.getElementById('input-eau').value);
             
-            updateDisplay();
-            alert("Stock enregistré ! Bonne vente.");
-            // On pourrait cacher la zone de setup ici si on voulait
+            // On mémorise le max pour calculer le % de la barre
+            maxStocks = {...stocks}; 
+            
+            updateUI();
+            toggleModal(); // Ferme la fenêtre
         }
 
-        // 2. Fonction de vente
+        // Fonction de vente
         function vendre(nom, prix) {
-            // Vérification du stock
             if (stocks[nom] > 0) {
-                stocks[nom]--;      // On enlève 1 au stock
-                ventes[nom]++;      // On ajoute 1 aux ventes
-                totalArgent += prix; // On encaisse l'argent
-                
-                document.getElementById("alert-msg").innerText = ""; // Efface les erreurs
+                // Logique Mathématique
+                stocks[nom]--;
+                ventes[nom]++;
+                totalArgent += prix;
+
+                // Feedback Haptique (Vibration)
+                if (navigator.vibrate) navigator.vibrate(50); 
+
+                updateUI();
             } else {
-                // Son ou vibration possible ici
-                document.getElementById("alert-msg").innerText = "⚠️ RUPTURE DE STOCK DE " + nom.toUpperCase() + " !";
-                return; // On arrête tout, pas de vente
+                // Vibration d'erreur (longue)
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                alert("⛔ STOCK ÉPUISÉ : " + nom);
             }
+        }
+
+        // Mise à jour de toute l'interface
+        function updateUI() {
+            // Mise à jour du Total
+            // .toLocaleString() permet d'avoir les espaces (ex: 10 000 au lieu de 10000)
+            document.getElementById("total-caisse").innerText = totalArgent.toLocaleString() + " FCFA";
+
+            // Mise à jour des barres et textes pour chaque boisson
+            updateCard('bock', 'Bock');
+            updateCard('ivoire', 'Ivoire');
+            updateCard('chill', 'Chill');
+            updateCard('eau', 'Eau');
+        }
+
+        function updateCard(idSuffix, nameKey) {
+            let current = stocks[nameKey];
+            let max = maxStocks[nameKey] || 1; // Evite division par zero
+            let percent = (current / max) * 100;
+
+            // Texte
+            document.getElementById(`text-${idSuffix}`).innerText = current;
             
-            updateDisplay();
+            // Barre visuelle
+            let bar = document.getElementById(`bar-${idSuffix}`);
+            bar.style.width = percent + "%";
+
+            // Changement de couleur si stock bas
+            if (percent < 20) {
+                bar.style.backgroundColor = "#ff4444"; // Rouge
+            } else if (percent < 50) {
+                bar.style.backgroundColor = "#ffbb33"; // Orange
+            } else {
+                bar.style.backgroundColor = "#4CAF50"; // Vert
+            }
         }
 
-        // 3. Mettre à jour l'écran
-        function updateDisplay() {
-            document.getElementById("badge-bock").innerText = stocks['Bock'];
-            document.getElementById("badge-ivoire").innerText = stocks['Ivoire'];
-            document.getElementById("total-caisse").innerText = totalArgent + " FCFA";
-        }
-
-        // 4. Générer le rapport WhatsApp pour le patron
         function genererRapport() {
             let date = new Date().toLocaleDateString();
             let heure = new Date().toLocaleTimeString();
+            let msg = `*📊 RAPPORT MAQUISPRO - ${date} ${heure}* %0a%0a`;
             
-            let message = `*📊 RAPPORT MAQUIS - ${date} ${heure}* %0a%0a`;
+            msg += `💰 CAISSE : *${totalArgent.toLocaleString()} FCFA* %0a`;
+            msg += `------------------%0a`;
             
-            message += `💰 *TOTAL CAISSE : ${totalArgent} FCFA* %0a`;
-            message += `------------------%0a`;
+            for (let [boisson, qte] of Object.entries(ventes)) {
+                if(qte > 0 || stocks[boisson] < 5) { // Affiche si vendu ou si stock critique
+                     msg += `🍺 *${boisson}* : Vendu ${qte} | Reste ${stocks[boisson]} %0a`;
+                }
+            }
             
-            message += `🍺 *Bock* : %0a`;
-            message += `   - Vendues : ${ventes['Bock']} %0a`;
-            message += `   - Reste au frigo : *${stocks['Bock']}* %0a%0a`;
-            
-            message += `🍺 *Ivoire* : %0a`;
-            message += `   - Vendues : ${ventes['Ivoire']} %0a`;
-            message += `   - Reste au frigo : *${stocks['Ivoire']}* %0a`;
-            
-            message += `------------------%0a`;
-            message += `Signé : Le Gérant`;
+            msg += `------------------%0a`;
+            msg += `Validé par le gérant.`;
 
-            window.open(`https://wa.me/?text=${message}`, '_blank');
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
         }
-        
-        // Initialisation affichage
-        updateDisplay();
-    </script>
 
+        // Initialisation
+        updateUI();
+
+    </script>
 </body>
 </html>
