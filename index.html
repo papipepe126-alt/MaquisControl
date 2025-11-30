@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Maquis Manager Cloud ☁️</title>
+    <title>Maquis Manager Cloud V2 ☁️</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #121212; --card: #1e1e1e; --primary: #FFD700; --danger: #FF4444; --success: #00C851; --text: #fff; }
+        :root { --bg: #121212; --card: #1e1e1e; --primary: #FFD700; --danger: #FF4444; --success: #00C851; --info: #33b5e5; --text: #fff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 
@@ -30,10 +30,13 @@
         .brand { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
         .logout-btn { background: #333; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-        /* CARDS */
-        .stat-card { background: linear-gradient(135deg, #2c3e50, #000000); padding: 20px; border-radius: 15px; text-align: center; border: 1px solid var(--primary); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1); }
-        .stat-card h3 { margin: 0; font-size: 12px; color: #aaa; text-transform: uppercase; }
-        .stat-card .val { font-size: 32px; font-weight: 700; margin-top: 5px; color: var(--primary); }
+        /* DASHBOARD GRID */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #333; }
+        .stat-card.main { grid-column: span 2; background: linear-gradient(135deg, #2c3e50, #000000); border: 1px solid var(--primary); }
+        .stat-card h3 { margin: 0; font-size: 11px; color: #aaa; text-transform: uppercase; }
+        .stat-card .val { font-size: 24px; font-weight: 700; margin-top: 5px; color: #fff; }
+        .stat-card.main .val { font-size: 32px; color: var(--primary); }
 
         /* PRODUCT LIST */
         .product-item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
@@ -44,6 +47,17 @@
         .stock-badge { background: #333; padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #aaa; }
         .btn-sell { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-sell:active { transform: scale(0.95); }
+
+        /* LOGS SECTION */
+        .log-section { margin-top: 20px; background: var(--card); padding: 15px; border-radius: 12px; }
+        .log-item { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0; border-bottom: 1px solid #333; color: #ccc; }
+        .log-item:last-child { border-bottom: none; }
+        .log-time { color: #666; font-size: 10px; }
+
+        /* ACTIONS BAR */
+        .action-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-action { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-expense { background: #333; color: var(--danger); border: 1px solid var(--danger); }
 
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -71,7 +85,7 @@
     <div id="login-screen">
         <div class="login-box">
             <h1 style="color:var(--primary); margin-bottom:5px;"><i class="fa-solid fa-champagne-glasses"></i> MAQUIS CLOUD</h1>
-            <p style="color:#666; font-size:12px; margin-bottom:20px;">Gestion Pro Multi-Maquis</p>
+            <p style="color:#666; font-size:12px; margin-bottom:20px;">Gestion Complète V2</p>
             
             <input type="email" id="email" class="login-input" placeholder="Email du Gérant">
             <input type="password" id="password" class="login-input" placeholder="Mot de passe">
@@ -91,22 +105,47 @@
 
         <!-- DASHBOARD TAB -->
         <div id="tab-home">
-            <div class="stat-card">
-                <h3>Chiffre d'Affaires (Live)</h3>
-                <div class="val" id="ca-display">0 FCFA</div>
-                <div style="font-size:11px; color:#888; margin-top:5px;">Synchronisé avec le Cloud ☁️</div>
+            
+            <!-- STATS GRID -->
+            <div class="dashboard-grid">
+                <div class="stat-card main">
+                    <h3>Net en Caisse (Réel)</h3>
+                    <div class="val" id="net-display">0 FCFA</div>
+                </div>
+                <div class="stat-card">
+                    <h3 style="color:var(--success)">Ventes</h3>
+                    <div class="val" id="ca-display" style="font-size:18px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3 style="color:var(--danger)">Dépenses</h3>
+                    <div class="val" id="expense-display" style="font-size:18px;">0</div>
+                </div>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div class="action-bar">
+                <button class="btn-action btn-expense" onclick="openModal('modal-expense')">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Sortie Caisse
+                </button>
             </div>
 
             <h3 style="color:#aaa; font-size:12px; margin-bottom:10px; text-transform:uppercase;">Vente Rapide</h3>
             <div id="products-list">
-                <!-- Les produits s'afficheront ici -->
-                <p style="text-align:center; color:#666; padding:20px;">Chargement du stock...</p>
+                <p style="text-align:center; color:#666; padding:20px;">Chargement...</p>
+            </div>
+
+            <!-- LOGS -->
+            <div class="log-section">
+                <h4 style="margin:0 0 10px 0; font-size:12px; color:#aaa;">HISTORIQUE RÉCENT</h4>
+                <div id="logs-list">
+                    <!-- Logs here -->
+                </div>
             </div>
         </div>
 
         <!-- ADMIN TAB (Caché par défaut) -->
         <div id="tab-admin" style="display:none;">
-            <h2 style="color:var(--primary)">⚙️ Administration</h2>
+            <h2 style="color:var(--primary)">⚙️ Gestion Stock & Admin</h2>
             
             <div style="background:#222; padding:15px; border-radius:10px; margin-bottom:20px;">
                 <h4 style="margin:0 0 10px 0;">Ajouter un Produit</h4>
@@ -116,7 +155,35 @@
                 <button class="btn-admin" style="background:var(--success); border:none;" onclick="addProduct()">AJOUTER</button>
             </div>
 
-            <button class="btn-admin" onclick="resetDay()" style="background:var(--danger); border:none;">🔴 CLÔTURER LA CAISSE (RAZ)</button>
+            <h4 style="color:#aaa;">Actions Sensibles</h4>
+            <button class="btn-admin" onclick="openModal('modal-restock')" style="background:#334; border:1px solid #556;">📦 Réapprovisionner Stock</button>
+            <button class="btn-admin" onclick="resetDay()" style="background:var(--danger); border:none; margin-top:20px;">🔴 CLÔTURER LA JOURNÉE (RAZ)</button>
+        </div>
+    </div>
+
+    <!-- MODAL EXPENSE -->
+    <div id="modal-expense" class="modal">
+        <div class="modal-content">
+            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-expense')"></i>
+            <h3 style="color:var(--danger)">💸 Sortie de Caisse</h3>
+            <input type="text" id="exp-reason" class="login-input" placeholder="Motif (ex: Glace, Transport)">
+            <input type="number" id="exp-amount" class="login-input" placeholder="Montant (FCFA)">
+            <button class="btn-auth" style="background:var(--danger); color:white;" onclick="addExpense()">VALIDER LA SORTIE</button>
+        </div>
+    </div>
+
+    <!-- MODAL RESTOCK -->
+    <div id="modal-restock" class="modal">
+        <div class="modal-content">
+            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-restock')"></i>
+            <h3 style="color:var(--info)">📦 Réapprovisionnement</h3>
+            <p style="font-size:12px; color:#aaa;">Ajouter du stock à un produit existant.</p>
+            
+            <select id="restock-select" class="login-input" style="background:#333;">
+                <!-- Options filled by JS -->
+            </select>
+            <input type="number" id="restock-amount" class="login-input" placeholder="Quantité à ajouter (ex: 24)">
+            <button class="btn-auth" style="background:var(--info); color:white;" onclick="restockProduct()">AJOUTER AU STOCK</button>
         </div>
     </div>
 
@@ -135,7 +202,6 @@
 
     <!-- FIREBASE LOGIC -->
     <script type="module">
-        // --- 1. IMPORTATION CDN (Pour que ça marche sans installation) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
@@ -143,7 +209,7 @@
         import { getFirestore, doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- 2. TA CONFIGURATION ---
+        // CONFIG ORIGINALE (NE PAS TOUCHER)
         const firebaseConfig = {
           apiKey: "AIzaSyCb22QgS99n6gzYmcCJoPzsVwd1uwg9g7k",
           authDomain: "maquismanager.firebaseapp.com",
@@ -154,18 +220,14 @@
           measurementId: "G-MWWLQJK1SL"
         };
 
-        // --- 3. INITIALISATION ---
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
         let currentUser = null;
         let currentData = null;
 
-        // --- 4. GESTION UTILISATEUR ---
-
-        // Création de compte (Premier Maquis)
+        // AUTH
         window.register = async () => {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
@@ -173,14 +235,16 @@
             
             showLoader(true);
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, e, p);
-                // On initialise la base de données pour ce nouveau maquis
-                await setDoc(doc(db, "maquis", userCredential.user.uid), {
-                    ca_day: 0,
-                    products: [
-                        { id: 1, name: "Bock 66", price: 1000, stock: 24 },
-                        { id: 2, name: "Ivoire", price: 1100, stock: 24 }
-                    ]
+                await createUserWithEmailAndPassword(auth, e, p).then(cred => {
+                    setDoc(doc(db, "maquis", cred.user.uid), {
+                        ca_day: 0,
+                        expense_day: 0,
+                        products: [
+                            { id: 1, name: "Bock 66", price: 1000, stock: 24 },
+                            { id: 2, name: "Ivoire", price: 1100, stock: 24 }
+                        ],
+                        logs: []
+                    });
                 });
                 alert("Compte créé !");
             } catch (error) {
@@ -189,7 +253,6 @@
             }
         };
 
-        // Connexion
         window.login = async () => {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
@@ -197,14 +260,13 @@
             try {
                 await signInWithEmailAndPassword(auth, e, p);
             } catch (error) {
-                document.getElementById('auth-msg').innerText = "Email ou mot de passe incorrect.";
+                document.getElementById('auth-msg').innerText = "Erreur connexion.";
                 showLoader(false);
             }
         };
 
         window.logout = () => signOut(auth);
 
-        // Surveillance de l'état (Connecté ou Pas ?)
         onAuthStateChanged(auth, (user) => {
             showLoader(false);
             if (user) {
@@ -212,7 +274,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 document.getElementById('bottom-nav').style.display = 'flex';
-                initRealTimeData(); // On lance la connexion Live
+                initRealTimeData();
             } else {
                 currentUser = null;
                 document.getElementById('login-screen').style.display = 'flex';
@@ -221,30 +283,29 @@
             }
         });
 
-        // --- 5. GESTION DONNÉES LIVE (Firestore) ---
-
+        // DATA SYNC
         function initRealTimeData() {
-            // Cette fonction écoute la base de données en direct
-            // Si tu changes une donnée sur Firebase, l'app se met à jour toute seule
-            onSnapshot(doc(db, "maquis", currentUser.uid), (doc) => {
-                if(doc.exists()) {
-                    currentData = doc.data();
+            onSnapshot(doc(db, "maquis", currentUser.uid), (docSnap) => {
+                if(docSnap.exists()) {
+                    currentData = docSnap.data();
                     renderUI(currentData);
-                } else {
-                    // Cas rare : Compte créé sans données
-                    console.log("Pas de données !");
+                    updateRestockSelect(currentData.products);
                 }
             });
         }
 
         function renderUI(data) {
-            // Mise à jour CA
-            document.getElementById('ca-display').innerText = (data.ca_day || 0).toLocaleString() + " FCFA";
+            let ca = data.ca_day || 0;
+            let exp = data.expense_day || 0;
+            let net = ca - exp;
 
-            // Mise à jour Liste Produits
+            document.getElementById('ca-display').innerText = ca.toLocaleString();
+            document.getElementById('expense-display').innerText = exp.toLocaleString();
+            document.getElementById('net-display').innerText = net.toLocaleString() + " F";
+
+            // Products
             const list = document.getElementById('products-list');
             list.innerHTML = '';
-
             if(data.products && data.products.length > 0) {
                 data.products.forEach((p, index) => {
                     let html = `
@@ -261,35 +322,96 @@
                     list.innerHTML += html;
                 });
             } else {
-                list.innerHTML = '<p style="text-align:center; color:#666;">Aucun produit. Allez dans Gestion.</p>';
+                list.innerHTML = '<p style="text-align:center; color:#666;">Aucun produit.</p>';
+            }
+
+            // Logs
+            const logsList = document.getElementById('logs-list');
+            logsList.innerHTML = '';
+            if(data.logs && data.logs.length > 0) {
+                // Show last 5 logs reversed
+                let recentLogs = data.logs.slice(-5).reverse();
+                recentLogs.forEach(log => {
+                    let color = log.type === 'expense' ? '#FF4444' : (log.type === 'restock' ? '#33b5e5' : '#00C851');
+                    logsList.innerHTML += `
+                    <div class="log-item">
+                        <span style="color:${color}">${log.desc}</span>
+                        <span class="log-time">${log.time}</span>
+                    </div>`;
+                });
+            } else {
+                logsList.innerHTML = '<div style="text-align:center; padding:10px; color:#444;">Aucune activité récente</div>';
             }
         }
 
-        // --- 6. ACTIONS (Vente, Ajout, etc.) ---
+        function updateRestockSelect(products) {
+            const select = document.getElementById('restock-select');
+            select.innerHTML = '';
+            if(products) {
+                products.forEach((p, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = index;
+                    opt.innerHTML = p.name;
+                    select.appendChild(opt);
+                });
+            }
+        }
 
-        // Vendre un produit
+        // ACTIONS
         window.sellProduct = async (index) => {
             if(!currentData) return;
             let p = currentData.products[index];
-
             if(p.stock > 0) {
-                // On met à jour localement pour la vitesse
                 let newProducts = [...currentData.products];
                 newProducts[index].stock--;
                 
-                // On envoie au Cloud
+                let log = { type: 'sale', desc: `Vente: ${p.name}`, time: new Date().toLocaleTimeString() };
+                
                 await updateDoc(doc(db, "maquis", currentUser.uid), {
                     products: newProducts,
-                    ca_day: (currentData.ca_day || 0) + parseInt(p.price)
+                    ca_day: (currentData.ca_day || 0) + parseInt(p.price),
+                    logs: arrayUnion(log)
                 });
-                
                 if(navigator.vibrate) navigator.vibrate(50);
-            } else {
-                alert("Stock Épuisé !");
+            } else { alert("Stock Épuisé !"); }
+        };
+
+        window.addExpense = async () => {
+            const reason = document.getElementById('exp-reason').value;
+            const amount = parseInt(document.getElementById('exp-amount').value);
+            
+            if(reason && amount) {
+                let log = { type: 'expense', desc: `Sortie: ${amount}F (${reason})`, time: new Date().toLocaleTimeString() };
+                await updateDoc(doc(db, "maquis", currentUser.uid), {
+                    expense_day: (currentData.expense_day || 0) + amount,
+                    logs: arrayUnion(log)
+                });
+                closeModal('modal-expense');
+                document.getElementById('exp-reason').value = "";
+                document.getElementById('exp-amount').value = "";
             }
         };
 
-        // Ajouter un nouveau produit (Admin)
+        window.restockProduct = async () => {
+            const index = document.getElementById('restock-select').value;
+            const amount = parseInt(document.getElementById('restock-amount').value);
+            
+            if(index !== "" && amount) {
+                let newProducts = [...currentData.products];
+                newProducts[index].stock += amount;
+                
+                let log = { type: 'restock', desc: `Ajout Stock: +${amount} ${newProducts[index].name}`, time: new Date().toLocaleTimeString() };
+                
+                await updateDoc(doc(db, "maquis", currentUser.uid), {
+                    products: newProducts,
+                    logs: arrayUnion(log)
+                });
+                closeModal('modal-restock');
+                document.getElementById('restock-amount').value = "";
+                alert("Stock mis à jour !");
+            }
+        };
+
         window.addProduct = async () => {
             const name = document.getElementById('new-prod-name').value;
             const price = parseInt(document.getElementById('new-prod-price').value);
@@ -298,54 +420,50 @@
             if(name && price && stock) {
                 let newProd = { id: Date.now(), name, price, stock };
                 let newList = currentData.products ? [...currentData.products, newProd] : [newProd];
-
-                await updateDoc(doc(db, "maquis", currentUser.uid), {
-                    products: newList
-                });
-                
+                await updateDoc(doc(db, "maquis", currentUser.uid), { products: newList });
                 alert("Produit ajouté !");
-                // Clear inputs
                 document.getElementById('new-prod-name').value = "";
                 document.getElementById('new-prod-price').value = "";
                 document.getElementById('new-prod-stock').value = "";
             }
         };
 
-        // Clôturer la journée (Reset CA)
         window.resetDay = async () => {
-            if(confirm("Voulez-vous vraiment remettre le CA à zéro pour demain ?")) {
+            if(confirm("⚠️ CLÔTURER LA CAISSE ?\nCeci remet les compteurs à zéro.")) {
                 await updateDoc(doc(db, "maquis", currentUser.uid), {
-                    ca_day: 0
+                    ca_day: 0,
+                    expense_day: 0,
+                    logs: [] // On vide les logs ou on les garde, au choix. Ici on vide pour le lendemain.
                 });
-                alert("Caisse remise à zéro !");
+                alert("Journée clôturée !");
             }
         };
 
-        // Rapport WhatsApp
-        window.sendReport = () => {
-            if(!currentData) return;
-            let d = new Date();
-            let msg = `*📊 RAPPORT CLOUD - ${d.toLocaleDateString()}* %0a`;
-            msg += `------------------%0a`;
-            msg += `💰 CA DU JOUR : *${currentData.ca_day} FCFA* %0a`;
-            msg += `------------------%0a`;
-            msg += `📦 STOCK RESTANT : %0a`;
-            currentData.products.forEach(p => {
-                msg += `- ${p.name} : ${p.stock} %0a`;
-            });
-            
-            window.open(`https://wa.me/?text=${msg}`, '_blank');
-        };
-
-        // UI Utilities
+        // UI HELPERS
+        window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+        
         window.switchTab = (tabName) => {
             document.getElementById('tab-home').style.display = tabName === 'home' ? 'block' : 'none';
             document.getElementById('tab-admin').style.display = tabName === 'admin' ? 'block' : 'none';
-            
-            // Update buttons colors
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            // Simple logic for active class (improved in real app)
             event.currentTarget.classList.add('active');
+        };
+
+        window.sendReport = () => {
+            if(!currentData) return;
+            let d = new Date();
+            let msg = `*📊 RAPPORT COMPLET - ${d.toLocaleDateString()}* %0a`;
+            msg += `------------------%0a`;
+            msg += `✅ Ventes: ${currentData.ca_day} F %0a`;
+            msg += `🔻 Dépenses: -${currentData.expense_day || 0} F %0a`;
+            msg += `💰 *NET CAISSE : ${(currentData.ca_day - (currentData.expense_day || 0))} F* %0a`;
+            msg += `------------------%0a`;
+            msg += `📦 STOCK ACTUEL : %0a`;
+            currentData.products.forEach(p => {
+                msg += `- ${p.name} : ${p.stock} %0a`;
+            });
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
         };
 
         function showLoader(show) {
@@ -354,7 +472,6 @@
                 document.getElementById('loader').style.display = show ? 'flex' : 'none';
             }, 500);
         }
-
     </script>
 </body>
 </html>
