@@ -3,393 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Maquis Manager V4</title>
+    <title>Maquis Manager Cloud ☁️</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        :root {
-            --bg: #121212; --card: #1e1e1e; --primary: #FFD700; --danger: #FF4444; --success: #00C851; --info: #33b5e5; --text: #fff;
-        }
+        :root { --bg: #121212; --card: #1e1e1e; --primary: #FFD700; --danger: #FF4444; --success: #00C851; --text: #fff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; padding-bottom: 120px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 
-        /* Header */
+        /* LOADING SPINNER */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        .spinner { border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* LOGIN SCREEN */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { width: 100%; max-width: 350px; text-align: center; }
+        .login-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #222; color: white; font-size: 16px; }
+        .btn-auth { width: 100%; padding: 15px; background: var(--primary); color: black; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; font-size: 16px; }
+
+        /* APP CONTAINER */
+        #app-container { display: none; padding: 20px; padding-bottom: 120px; max-width: 600px; margin: 0 auto; }
+        
+        /* HEADER */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .brand { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
-        .admin-btn { background: #333; color: white; border: 1px solid #555; padding: 10px 15px; border-radius: 12px; cursor: pointer; }
+        .logout-btn { background: #333; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-        /* Dashboard Principal (Journée en cours) */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #333; }
-        .stat-card h3 { margin: 0; font-size: 11px; color: #aaa; text-transform: uppercase; }
-        .stat-card .val { font-size: 20px; font-weight: 700; margin-top: 5px; }
-        .big-card { grid-column: span 2; background: linear-gradient(135deg, #2c3e50, #000000); border: 1px solid var(--primary); }
-        .big-card .val { font-size: 32px; color: var(--primary); }
+        /* CARDS */
+        .stat-card { background: linear-gradient(135deg, #2c3e50, #000000); padding: 20px; border-radius: 15px; text-align: center; border: 1px solid var(--primary); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1); }
+        .stat-card h3 { margin: 0; font-size: 12px; color: #aaa; text-transform: uppercase; }
+        .stat-card .val { font-size: 32px; font-weight: 700; margin-top: 5px; color: var(--primary); }
 
-        /* Grille Produits */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .product-card { background: var(--card); border-radius: 18px; padding: 15px; position: relative; border: 1px solid #333; transition: transform 0.1s; }
-        .product-card:active { transform: scale(0.96); background: #252525; }
-        .p-name { font-weight: 600; font-size: 16px; margin-bottom: 5px; }
-        .p-price { color: var(--success); font-weight: 700; font-size: 14px; }
-        .p-stock { font-size: 11px; color: #888; margin-top: 8px; display: flex; justify-content: space-between; }
-        .bar-bg { background: #333; height: 4px; border-radius: 2px; margin-top: 5px; width: 100%; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--success); width: 100%; transition: width 0.3s; }
+        /* PRODUCT LIST */
+        .product-item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
+        .p-info { display: flex; flex-direction: column; }
+        .p-name { font-weight: bold; font-size: 16px; }
+        .p-price { color: var(--success); font-size: 14px; }
+        .p-actions { display: flex; align-items: center; gap: 10px; }
+        .stock-badge { background: #333; padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #aaa; }
+        .btn-sell { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-sell:active { transform: scale(0.95); }
 
-        /* Actions Flottantes */
-        .fab-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 90%; z-index: 99; }
-        .btn-main { flex: 2; background: #25D366; color: white; padding: 16px; border: none; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 5px 15px rgba(37,211,102,0.3); }
-        .btn-expense { flex: 1; background: var(--danger); color: white; padding: 16px; border: none; border-radius: 50px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(255,68,68,0.3); }
-
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid #444; }
-        .modal-title { margin-top: 0; color: var(--primary); }
+        /* MODALS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid #444; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 20px; color: #666; cursor: pointer; }
         
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #333; border: 1px solid #555; color: white; border-radius: 8px; font-size: 16px; }
-        .btn-save { background: var(--primary); color: black; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; }
-        .close-modal { position: absolute; top: 15px; right: 15px; color: #888; font-size: 24px; cursor: pointer; }
+        /* BOTTOM BAR */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a1a; padding: 15px; display: flex; justify-content: space-around; border-top: 1px solid #333; z-index: 4000; }
+        .nav-btn { background: none; border: none; color: #666; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 10px; gap: 5px; }
+        .nav-btn i { font-size: 20px; margin-bottom: 2px; }
+        .nav-btn.active { color: var(--primary); }
 
-        /* ADMIN SPECIFIC */
-        .admin-item { display: flex; gap: 5px; margin-bottom: 10px; align-items: center; background: #2a2a2a; padding: 10px; border-radius: 8px; }
-        .admin-item input { margin: 0; font-size: 14px; padding: 8px; }
-        .btn-del { background: var(--danger); color: white; border: none; padding: 8px; border-radius: 5px; }
-
-        /* ADMIN STATS DASHBOARD */
-        .monthly-stats {
-            background: #252525; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #444;
-        }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .mini-stat { background: #1a1a1a; padding: 10px; border-radius: 8px; text-align: center; }
-        .mini-stat span { font-size: 10px; color: #aaa; }
-        .mini-stat div { font-size: 16px; font-weight: bold; }
-        
-        .btn-archive { background: linear-gradient(45deg, #1e3c72, #2a5298); color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; margin-bottom: 20px; font-weight: bold; border: 1px solid #4a90e2; }
-
+        .btn-admin { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: white; border-radius: 8px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="modal" id="modal-login">
-        <div class="modal-content" style="text-align: center;">
-            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-login')"></i>
-            <h2 class="modal-title">🔐 Accès Patron</h2>
-            <p style="color:#aaa; font-size:13px;">Entrez le code PIN (Défaut: 0000)</p>
-            <input type="password" id="pin-input" placeholder="Code PIN" style="text-align:center; font-size: 24px; letter-spacing: 5px;">
-            <button class="btn-save" onclick="checkPin()">DÉVERROUILLER</button>
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:10px; font-size:12px; color:#666;">Connexion Sécurisée...</p>
+    </div>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h1 style="color:var(--primary); margin-bottom:5px;"><i class="fa-solid fa-champagne-glasses"></i> MAQUIS CLOUD</h1>
+            <p style="color:#666; font-size:12px; margin-bottom:20px;">Gestion Pro Multi-Maquis</p>
+            
+            <input type="email" id="email" class="login-input" placeholder="Email du Gérant">
+            <input type="password" id="password" class="login-input" placeholder="Mot de passe">
+            
+            <button class="btn-auth" onclick="login()">SE CONNECTER</button>
+            <button class="btn-auth" onclick="register()" style="background:#222; border:1px solid #444; color:#aaa; margin-top:15px;">Créer un nouveau compte</button>
+            <p id="auth-msg" style="color:var(--danger); margin-top:15px; font-size:12px;"></p>
         </div>
     </div>
 
-    <div class="modal" id="modal-admin">
-        <div class="modal-content">
-            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-admin')"></i>
-            
-            <h2 class="modal-title">📊 Stats du Mois</h2>
-            <div class="monthly-stats">
-                <div style="text-align:center; font-size:12px; color:#aaa; margin-bottom:5px;">CUMUL DU MOIS EN COURS</div>
-                <div class="stats-grid">
-                    <div class="mini-stat" style="border-bottom: 2px solid var(--success)">
-                        <span>Recettes</span>
-                        <div id="stat-m-sales" style="color:var(--success)">0 F</div>
-                    </div>
-                    <div class="mini-stat" style="border-bottom: 2px solid var(--danger)">
-                        <span>Dépenses</span>
-                        <div id="stat-m-expenses" style="color:var(--danger)">0 F</div>
-                    </div>
-                </div>
-                <div class="mini-stat" style="margin-top:10px; background: #332b00; border: 1px solid var(--primary);">
-                    <span style="color:var(--primary)">BÉNÉFICE NET (Cash)</span>
-                    <div id="stat-m-profit" style="color:var(--primary); font-size: 20px;">0 F</div>
-                </div>
+    <!-- 2. APP PRINCIPALE -->
+    <div id="app-container">
+        <header>
+            <div class="brand">MAQUIS<span style="color:white">MANAGER</span></div>
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+        </header>
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-home">
+            <div class="stat-card">
+                <h3>Chiffre d'Affaires (Live)</h3>
+                <div class="val" id="ca-display">0 FCFA</div>
+                <div style="font-size:11px; color:#888; margin-top:5px;">Synchronisé avec le Cloud ☁️</div>
             </div>
 
-            <button class="btn-archive" onclick="archiveDay()"><i class="fa-solid fa-box-archive"></i> CLÔTURER LA JOURNÉE<br><span style="font-size:10px; font-weight:normal;">Remet les compteurs à zéro et sauvegarde</span></button>
+            <h3 style="color:#aaa; font-size:12px; margin-bottom:10px; text-transform:uppercase;">Vente Rapide</h3>
+            <div id="products-list">
+                <!-- Les produits s'afficheront ici -->
+                <p style="text-align:center; color:#666; padding:20px;">Chargement du stock...</p>
+            </div>
+        </div>
 
-            <h2 class="modal-title">⚙️ Stock & Produits</h2>
-            <div id="admin-list"></div>
-
-            <button class="btn-save" style="background:#333; color:white; border:1px dashed #777;" onclick="addNewProductItem()">+ Ajouter produit</button>
+        <!-- ADMIN TAB (Caché par défaut) -->
+        <div id="tab-admin" style="display:none;">
+            <h2 style="color:var(--primary)">⚙️ Administration</h2>
             
-            <hr style="border-color:#333; margin:20px 0;">
-            <input type="number" id="new-pin" placeholder="Changer le PIN">
-            <button class="btn-save" onclick="saveAdminData()">💾 SAUVEGARDER & QUITTER</button>
+            <div style="background:#222; padding:15px; border-radius:10px; margin-bottom:20px;">
+                <h4 style="margin:0 0 10px 0;">Ajouter un Produit</h4>
+                <input type="text" id="new-prod-name" placeholder="Nom (ex: Bock)" class="login-input" style="padding:10px;">
+                <input type="number" id="new-prod-price" placeholder="Prix (ex: 1000)" class="login-input" style="padding:10px;">
+                <input type="number" id="new-prod-stock" placeholder="Stock Initial" class="login-input" style="padding:10px;">
+                <button class="btn-admin" style="background:var(--success); border:none;" onclick="addProduct()">AJOUTER</button>
+            </div>
+
+            <button class="btn-admin" onclick="resetDay()" style="background:var(--danger); border:none;">🔴 CLÔTURER LA CAISSE (RAZ)</button>
         </div>
     </div>
 
-    <div class="modal" id="modal-expense">
-        <div class="modal-content">
-            <i class="close-modal fa-solid fa-xmark" onclick="closeModal('modal-expense')"></i>
-            <h2 class="modal-title" style="color:var(--danger)">💸 Sortie de Caisse</h2>
-            <label>Motif (ex: Glace, Transport)</label>
-            <input type="text" id="expense-reason">
-            <label>Montant (FCFA)</label>
-            <input type="number" id="expense-amount">
-            <button class="btn-save" style="background:var(--danger); color:white" onclick="addExpense()">VALIDER LA SORTIE</button>
-        </div>
+    <!-- NAVIGATION BASSE -->
+    <div class="bottom-bar" id="bottom-nav" style="display:none;">
+        <button class="nav-btn active" onclick="switchTab('home')">
+            <i class="fa-solid fa-cash-register"></i> Caisse
+        </button>
+        <button class="nav-btn" onclick="switchTab('admin')">
+            <i class="fa-solid fa-gear"></i> Gestion
+        </button>
+        <button class="nav-btn" onclick="sendReport()">
+            <i class="fa-brands fa-whatsapp"></i> Rapport
+        </button>
     </div>
 
-    <header>
-        <div class="brand"><i class="fa-solid fa-champagne-glasses"></i> MAQUIS<span style="color:white">MANAGER</span></div>
-        <button class="admin-btn" onclick="openLogin()"><i class="fa-solid fa-lock"></i> Admin</button>
-    </header>
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        // --- 1. IMPORTATION CDN (Pour que ça marche sans installation) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <div class="dashboard">
-        <div class="stat-card big-card">
-            <h3>Solde Caisse (Aujourd'hui)</h3>
-            <div class="val" id="net-total">0 F</div>
-        </div>
-        <div class="stat-card">
-            <h3>Ventes</h3>
-            <div class="val" id="sales-total" style="color:var(--success)">0 F</div>
-        </div>
-        <div class="stat-card">
-            <h3>Sorties</h3>
-            <div class="val" id="expenses-total" style="color:var(--danger)">0 F</div>
-        </div>
-    </div>
-
-    <div class="grid" id="product-grid"></div>
-
-    <div class="fab-container">
-        <button class="btn-expense" onclick="openModal('modal-expense')"><i class="fa-solid fa-money-bill-transfer"></i></button>
-        <button class="btn-main" onclick="sendReport()"><i class="fa-brands fa-whatsapp"></i> POINT WHATSAPP</button>
-    </div>
-
-    <script>
-        // --- DATA CONFIGURATION ---
-        let defaultData = {
-            pin: "0000",
-            products: [
-                { id: 1, name: "Bock 66", price: 1000, stock: 24, maxStock: 24, sold: 0 },
-                { id: 2, name: "Ivoire", price: 1100, stock: 24, maxStock: 24, sold: 0 },
-                { id: 3, name: "Chill", price: 1200, stock: 24, maxStock: 24, sold: 0 },
-                { id: 4, name: "Eau", price: 500, stock: 24, maxStock: 24, sold: 0 }
-            ],
-            expenses: [], // Dépenses du jour
-            history: []   // Historique des jours précédents { date, sales, expenses, profit }
+        // --- 2. TA CONFIGURATION ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyCb22QgS99n6gzYmcCJoPzsVwd1uwg9g7k",
+          authDomain: "maquismanager.firebaseapp.com",
+          projectId: "maquismanager",
+          storageBucket: "maquismanager.firebasestorage.app",
+          messagingSenderId: "565292456302",
+          appId: "1:565292456302:web:ef737768b5e0f06a05897f",
+          measurementId: "G-MWWLQJK1SL"
         };
 
-        let appData = JSON.parse(localStorage.getItem('maquisDataV4')) || defaultData;
+        // --- 3. INITIALISATION ---
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // --- CORE FUNCTIONS ---
-        function saveData() {
-            localStorage.setItem('maquisDataV4', JSON.stringify(appData));
-            renderUI();
-        }
+        let currentUser = null;
+        let currentData = null;
 
-        function renderUI() {
-            // Calculs du jour
-            let daySales = appData.products.reduce((acc, p) => acc + (p.sold * p.price), 0);
-            let dayExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
-            let dayNet = daySales - dayExpenses;
+        // --- 4. GESTION UTILISATEUR ---
 
-            document.getElementById('sales-total').innerText = daySales.toLocaleString() + ' F';
-            document.getElementById('expenses-total').innerText = dayExpenses.toLocaleString() + ' F';
-            document.getElementById('net-total').innerText = dayNet.toLocaleString() + ' F';
-
-            // Grille
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-            appData.products.forEach(p => {
-                let percent = p.maxStock > 0 ? (p.stock / p.maxStock) * 100 : 0;
-                let barColor = percent < 20 ? 'var(--danger)' : (percent < 50 ? '#ffbb33' : 'var(--success)');
-
-                grid.innerHTML += `
-                <div class="product-card" onclick="sell(${p.id})">
-                    <div class="p-name">${p.name}</div>
-                    <div class="p-price">${p.price} F</div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${percent}%; background:${barColor}"></div></div>
-                    <div class="p-stock">
-                        <span>Stock: <b>${p.stock}</b></span>
-                        <span style="color:#aaa">Vendu: ${p.sold}</span>
-                    </div>
-                </div>`;
-            });
-        }
-
-        function sell(id) {
-            let p = appData.products.find(x => x.id === id);
-            if (p && p.stock > 0) {
-                p.stock--;
-                p.sold++;
-                if(navigator.vibrate) navigator.vibrate(50);
-                saveData();
-            } else {
-                if(navigator.vibrate) navigator.vibrate([50,50,50]);
-                alert("STOCK ÉPUISÉ !");
-            }
-        }
-
-        // --- EXPENSES ---
-        function addExpense() {
-            let reason = document.getElementById('expense-reason').value;
-            let amount = parseInt(document.getElementById('expense-amount').value);
-            if (reason && amount) {
-                appData.expenses.push({ reason, amount, time: new Date().toLocaleTimeString() });
-                closeModal('modal-expense');
-                document.getElementById('expense-reason').value = '';
-                document.getElementById('expense-amount').value = '';
-                saveData();
-            }
-        }
-
-        // --- ADMIN & STATS MENSUELLES ---
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function openLogin() {
-            document.getElementById('pin-input').value = '';
-            openModal('modal-login');
-        }
-
-        function checkPin() {
-            let input = document.getElementById('pin-input').value;
-            if (input === appData.pin) {
-                closeModal('modal-login');
-                openAdminPanel();
-            } else { alert("Code PIN Incorrect !"); }
-        }
-
-        function openAdminPanel() {
-            openModal('modal-admin');
-            renderAdminProducts();
-            calculateMonthlyStats();
-        }
-
-        function calculateMonthlyStats() {
-            let currentMonth = new Date().getMonth(); // 0-11
-            let currentYear = new Date().getFullYear();
-
-            // 1. On prend l'historique
-            let mSales = 0;
-            let mExpenses = 0;
-
-            if(appData.history) {
-                appData.history.forEach(day => {
-                    let d = new Date(day.dateIso); // Format ISO stocké
-                    if(d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-                        mSales += day.sales;
-                        mExpenses += day.expenses;
-                    }
+        // Création de compte (Premier Maquis)
+        window.register = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            if(p.length < 6) { alert("Le mot de passe doit faire 6 caractères minimum"); return; }
+            
+            showLoader(true);
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, e, p);
+                // On initialise la base de données pour ce nouveau maquis
+                await setDoc(doc(db, "maquis", userCredential.user.uid), {
+                    ca_day: 0,
+                    products: [
+                        { id: 1, name: "Bock 66", price: 1000, stock: 24 },
+                        { id: 2, name: "Ivoire", price: 1100, stock: 24 }
+                    ]
                 });
+                alert("Compte créé !");
+            } catch (error) {
+                alert("Erreur: " + error.message);
+                showLoader(false);
             }
+        };
 
-            // 2. On ajoute la journée EN COURS (Live)
-            let todaySales = appData.products.reduce((acc, p) => acc + (p.sold * p.price), 0);
-            let todayExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
+        // Connexion
+        window.login = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            showLoader(true);
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+            } catch (error) {
+                document.getElementById('auth-msg').innerText = "Email ou mot de passe incorrect.";
+                showLoader(false);
+            }
+        };
 
-            mSales += todaySales;
-            mExpenses += todayExpenses;
-            let mProfit = mSales - mExpenses;
+        window.logout = () => signOut(auth);
 
-            // 3. Affichage
-            document.getElementById('stat-m-sales').innerText = mSales.toLocaleString() + " F";
-            document.getElementById('stat-m-expenses').innerText = mExpenses.toLocaleString() + " F";
-            document.getElementById('stat-m-profit').innerText = mProfit.toLocaleString() + " F";
-        }
-
-        // --- FONCTION CLÉ : CLÔTURER JOURNÉE ---
-        function archiveDay() {
-            if(!confirm("⚠️ ATTENTION : Voulez-vous clôturer la caisse du jour ?\nCela va remettre les ventes à zéro et sauvegarder les chiffres.")) return;
-
-            let todaySales = appData.products.reduce((acc, p) => acc + (p.sold * p.price), 0);
-            let todayExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
-            let todayProfit = todaySales - todayExpenses;
-            
-            // Création de l'archive
-            let archive = {
-                dateIso: new Date().toISOString(), // Pour le tri
-                dateStr: new Date().toLocaleDateString(), // Pour l'affichage
-                sales: todaySales,
-                expenses: todayExpenses,
-                profit: todayProfit
-            };
-
-            // Init history si n'existe pas
-            if(!appData.history) appData.history = [];
-            appData.history.push(archive);
-
-            // RESET des compteurs journaliers
-            appData.expenses = [];
-            appData.products.forEach(p => {
-                p.sold = 0; // On garde le stock, on reset juste les ventes
-                // Optionnel: reset maxStock pour le lendemain ? Non, on garde.
-            });
-
-            saveData();
-            alert("✅ Journée clôturée et sauvegardée !");
-            openAdminPanel(); // Rafraichir les stats
-        }
-
-        // --- ADMIN GESTION PRODUITS ---
-        function renderAdminProducts() {
-            const list = document.getElementById('admin-list');
-            list.innerHTML = '';
-            appData.products.forEach((p, index) => {
-                list.innerHTML += `
-                <div class="admin-item">
-                    <input type="text" value="${p.name}" onchange="updateProd(${index}, 'name', this.value)" style="width:40%">
-                    <input type="number" value="${p.price}" onchange="updateProd(${index}, 'price', this.value)" style="width:25%">
-                    <input type="number" value="${p.stock}" onchange="updateProd(${index}, 'stock', this.value)" style="width:20%; color:var(--primary)">
-                    <button class="btn-del" onclick="deleteProd(${index})"><i class="fa-solid fa-trash"></i></button>
-                </div>`;
-            });
-        }
-
-        function updateProd(index, field, value) {
-            if(field === 'stock') {
-                appData.products[index].maxStock = parseInt(value);
-                appData.products[index].stock = parseInt(value);
-                appData.products[index].sold = 0; 
-            } else if (field === 'price') {
-                appData.products[index].price = parseInt(value);
+        // Surveillance de l'état (Connecté ou Pas ?)
+        onAuthStateChanged(auth, (user) => {
+            showLoader(false);
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                initRealTimeData(); // On lance la connexion Live
             } else {
-                appData.products[index][field] = value;
+                currentUser = null;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
+                document.getElementById('bottom-nav').style.display = 'none';
             }
-        }
-        
-        function addNewProductItem() {
-            appData.products.push({ id: Date.now(), name: 'Nouveau', price: 0, stock: 0, maxStock: 0, sold: 0 });
-            renderAdminProducts();
-        }
+        });
 
-        function deleteProd(index) {
-            if(confirm('Supprimer ?')) {
-                appData.products.splice(index, 1);
-                renderAdminProducts();
-            }
-        }
+        // --- 5. GESTION DONNÉES LIVE (Firestore) ---
 
-        function saveAdminData() {
-            let newPin = document.getElementById('new-pin').value;
-            if(newPin) appData.pin = newPin;
-            saveData();
-            closeModal('modal-admin');
-        }
-
-        // --- REPORTING ---
-        function sendReport() {
-            let d = new Date();
-            let msg = `*📊 POINT DU ${d.toLocaleDateString()} ${d.toLocaleTimeString()}* %0a`;
-            
-            // Calculs locaux pour le message
-            let s = appData.products.reduce((acc, p) => acc + (p.sold * p.price), 0);
-            let e = appData.expenses.reduce((acc, ex) => acc + ex.amount, 0);
-            
-            appData.products.forEach(p => {
-                if(p.sold > 0) msg += `🍺 ${p.name}: ${p.sold} (Reste: ${p.stock})%0a`;
+        function initRealTimeData() {
+            // Cette fonction écoute la base de données en direct
+            // Si tu changes une donnée sur Firebase, l'app se met à jour toute seule
+            onSnapshot(doc(db, "maquis", currentUser.uid), (doc) => {
+                if(doc.exists()) {
+                    currentData = doc.data();
+                    renderUI(currentData);
+                } else {
+                    // Cas rare : Compte créé sans données
+                    console.log("Pas de données !");
+                }
             });
-
-            msg += `--------------------------------%0a`;
-            msg += `💰 Ventes: *${s.toLocaleString()} F*%0a`;
-            if(e > 0) msg += `🔻 Sorties: -${e.toLocaleString()} F%0a`;
-            msg += `💵 *CAISSE NETTE : ${(s-e).toLocaleString()} F*`;
-
-            window.open(`https://wa.me/?text=${msg}`, '_blank');
         }
 
-        renderUI();
+        function renderUI(data) {
+            // Mise à jour CA
+            document.getElementById('ca-display').innerText = (data.ca_day || 0).toLocaleString() + " FCFA";
+
+            // Mise à jour Liste Produits
+            const list = document.getElementById('products-list');
+            list.innerHTML = '';
+
+            if(data.products && data.products.length > 0) {
+                data.products.forEach((p, index) => {
+                    let html = `
+                    <div class="product-item">
+                        <div class="p-info">
+                            <span class="p-name">${p.name}</span>
+                            <span class="p-price">${p.price} F</span>
+                        </div>
+                        <div class="p-actions">
+                            <span class="stock-badge">Stock: ${p.stock}</span>
+                            <button class="btn-sell" onclick="sellProduct(${index})">VENDRE</button>
+                        </div>
+                    </div>`;
+                    list.innerHTML += html;
+                });
+            } else {
+                list.innerHTML = '<p style="text-align:center; color:#666;">Aucun produit. Allez dans Gestion.</p>';
+            }
+        }
+
+        // --- 6. ACTIONS (Vente, Ajout, etc.) ---
+
+        // Vendre un produit
+        window.sellProduct = async (index) => {
+            if(!currentData) return;
+            let p = currentData.products[index];
+
+            if(p.stock > 0) {
+                // On met à jour localement pour la vitesse
+                let newProducts = [...currentData.products];
+                newProducts[index].stock--;
+                
+                // On envoie au Cloud
+                await updateDoc(doc(db, "maquis", currentUser.uid), {
+                    products: newProducts,
+                    ca_day: (currentData.ca_day || 0) + parseInt(p.price)
+                });
+                
+                if(navigator.vibrate) navigator.vibrate(50);
+            } else {
+                alert("Stock Épuisé !");
+            }
+        };
+
+        // Ajouter un nouveau produit (Admin)
+        window.addProduct = async () => {
+            const name = document.getElementById('new-prod-name').value;
+            const price = parseInt(document.getElementById('new-prod-price').value);
+            const stock = parseInt(document.getElementById('new-prod-stock').value);
+
+            if(name && price && stock) {
+                let newProd = { id: Date.now(), name, price, stock };
+                let newList = currentData.products ? [...currentData.products, newProd] : [newProd];
+
+                await updateDoc(doc(db, "maquis", currentUser.uid), {
+                    products: newList
+                });
+                
+                alert("Produit ajouté !");
+                // Clear inputs
+                document.getElementById('new-prod-name').value = "";
+                document.getElementById('new-prod-price').value = "";
+                document.getElementById('new-prod-stock').value = "";
+            }
+        };
+
+        // Clôturer la journée (Reset CA)
+        window.resetDay = async () => {
+            if(confirm("Voulez-vous vraiment remettre le CA à zéro pour demain ?")) {
+                await updateDoc(doc(db, "maquis", currentUser.uid), {
+                    ca_day: 0
+                });
+                alert("Caisse remise à zéro !");
+            }
+        };
+
+        // Rapport WhatsApp
+        window.sendReport = () => {
+            if(!currentData) return;
+            let d = new Date();
+            let msg = `*📊 RAPPORT CLOUD - ${d.toLocaleDateString()}* %0a`;
+            msg += `------------------%0a`;
+            msg += `💰 CA DU JOUR : *${currentData.ca_day} FCFA* %0a`;
+            msg += `------------------%0a`;
+            msg += `📦 STOCK RESTANT : %0a`;
+            currentData.products.forEach(p => {
+                msg += `- ${p.name} : ${p.stock} %0a`;
+            });
+            
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+        };
+
+        // UI Utilities
+        window.switchTab = (tabName) => {
+            document.getElementById('tab-home').style.display = tabName === 'home' ? 'block' : 'none';
+            document.getElementById('tab-admin').style.display = tabName === 'admin' ? 'block' : 'none';
+            
+            // Update buttons colors
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            // Simple logic for active class (improved in real app)
+            event.currentTarget.classList.add('active');
+        };
+
+        function showLoader(show) {
+            document.getElementById('loader').style.opacity = show ? '1' : '0';
+            setTimeout(() => {
+                document.getElementById('loader').style.display = show ? 'flex' : 'none';
+            }, 500);
+        }
+
     </script>
 </body>
 </html>
